@@ -5,7 +5,7 @@ local Player = Players.LocalPlayer
 local TARGET_PLACE_ID = 17625359962
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- 기존 GUI 제거 (중복 실행 방지)
+-- 기존 GUI 제거 (중복 실행 방증)
 if PlayerGui:FindFirstChild("AntiHubGUI") then
 	PlayerGui.AntiHubGUI:Destroy()
 end
@@ -135,13 +135,13 @@ buttonFrame.Position = UDim2.new(0, 15, 1, -60)
 buttonFrame.BackgroundTransparency = 1
 buttonFrame.Parent = mainFrame
 
--- 실행 버튼 (좌측 70% 영역)
+-- 실행 버튼 (Execute)
 local executeBtn = Instance.new("TextButton")
 executeBtn.Name = "ExecuteButton"
 executeBtn.Size = UDim2.new(0.7, -5, 1, 0)
 executeBtn.Position = UDim2.new(0, 0, 0, 0)
 executeBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 240)
-executeBtn.Text = "실행"
+executeBtn.Text = "Execute"
 executeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 executeBtn.TextSize = 15
 executeBtn.Font = Enum.Font.GothamBold
@@ -152,13 +152,13 @@ local execCorner = Instance.new("UICorner")
 execCorner.CornerRadius = UDim.new(0, 8)
 execCorner.Parent = executeBtn
 
--- 언로드 버튼 (우측 30% 영역)
+-- 언로드 버튼 (Unload)
 local unloadBtn = Instance.new("TextButton")
 unloadBtn.Name = "UnloadButton"
 unloadBtn.Size = UDim2.new(0.3, -5, 1, 0)
 unloadBtn.Position = UDim2.new(0.7, 5, 0, 0)
 unloadBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
-unloadBtn.Text = "언로드"
+unloadBtn.Text = "Unload"
 unloadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
 unloadBtn.TextSize = 15
 unloadBtn.Font = Enum.Font.GothamBold
@@ -192,10 +192,10 @@ executeBtn.MouseButton1Click:Connect(function()
 			loadstring(game:HttpGet(selectedUrl))()
 		end)
 		if not success then
-			warn("스크립트 실행 실패:", err)
+			warn("Execute failed:", err)
 		end
 	else
-		-- 아무 옵션도 선택하지 않은 경우 진동 애니메이션
+		-- 선택된 옵션이 없을 때 흔들림 애니메이션
 		local originalPos = executeBtn.Position
 		TweenService:Create(executeBtn, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, -4, 0, 0)}):Play()
 		task.wait(0.05)
