@@ -1,0 +1,219 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local Player = Players.LocalPlayer
+
+local TARGET_PLACE_ID = 17625359962
+local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- 기존 GUI 제거 (중복 실행 방지)
+if PlayerGui:FindFirstChild("AntiHubGUI") then
+	PlayerGui.AntiHubGUI:Destroy()
+end
+
+-- 1. ScreenGui 생성
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "AntiHubGUI"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = PlayerGui
+
+-- 2. 메인 프레임
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 420, 0, 310)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -155)
+mainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
+mainFrame.BorderSizePixel = 0
+mainFrame.ClipsDescendants = true
+mainFrame.Parent = screenGui
+
+local mainCorner = Instance.new("UICorner")
+mainCorner.CornerRadius = UDim.new(0, 10)
+mainCorner.Parent = mainFrame
+
+local mainStroke = Instance.new("UIStroke")
+mainStroke.Color = Color3.fromRGB(50, 50, 60)
+mainStroke.Thickness = 1
+mainStroke.Parent = mainFrame
+
+-- 3. 타이틀 바
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Name = "Title"
+titleLabel.Size = UDim2.new(1, 0, 0, 45)
+titleLabel.Position = UDim2.new(0, 0, 0, 0)
+titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
+titleLabel.Text = "  ANTI HUB"
+titleLabel.TextColor3 = Color3.fromRGB(240, 240, 245)
+titleLabel.TextSize = 16
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleLabel
+
+-- 4. 버튼 컨테이너
+local container = Instance.new("Frame")
+container.Name = "Container"
+container.Size = UDim2.new(1, -30, 0, 120)
+container.Position = UDim2.new(0, 15, 0, 60)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
+
+local uiListLayout = Instance.new("UIListLayout")
+uiListLayout.Parent = container
+uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+uiListLayout.Padding = UDim.new(0, 10)
+
+-- 스크립트 목록 및 URL 정의
+local scriptsData = {
+	{
+		Name = "anti enhancement  (RIVALS)",
+		Url = "https://raw.githubusercontent.com/koyo141013/anti-enhancement/refs/heads/main/anti%20enhancement"
+	},
+	{
+		Name = "RIVALS HUB  (RIVALS)",
+		Url = "https://raw.githubusercontent.com/koyo141013/RIVALS-HUB/refs/heads/main/RIVALS%20HUB"
+	}
+}
+
+local selectedUrl = nil
+local optionButtons = {}
+
+-- 옵션 버튼 생성
+for index, data in ipairs(scriptsData) do
+	local btn = Instance.new("TextButton")
+	btn.Name = "OptionBtn_" .. index
+	btn.Size = UDim2.new(1, 0, 0, 45)
+	btn.BackgroundColor3 = Color3.fromRGB(36, 36, 44)
+	btn.Text = "   " .. data.Name
+	btn.TextColor3 = Color3.fromRGB(180, 180, 190)
+	btn.TextSize = 14
+	btn.Font = Enum.Font.GothamMedium
+	btn.TextXAlignment = Enum.TextXAlignment.Left
+	btn.AutoButtonColor = false
+	btn.Parent = container
+
+	local btnCorner = Instance.new("UICorner")
+	btnCorner.CornerRadius = UDim.new(0, 8)
+	btnCorner.Parent = btn
+
+	local btnStroke = Instance.new("UIStroke")
+	btnStroke.Color = Color3.fromRGB(55, 55, 65)
+	btnStroke.Thickness = 1
+	btnStroke.Parent = btn
+
+	btn.MouseButton1Click:Connect(function()
+		selectedUrl = data.Url
+		for _, otherBtn in ipairs(optionButtons) do
+			TweenService:Create(otherBtn.Button, TweenInfo.new(0.2), {
+				BackgroundColor3 = Color3.fromRGB(36, 36, 44),
+				TextColor3 = Color3.fromRGB(180, 180, 190)
+			}):Play()
+			TweenService:Create(otherBtn.Stroke, TweenInfo.new(0.2), {
+				Color = Color3.fromRGB(55, 55, 65)
+			}):Play()
+		end
+
+		TweenService:Create(btn, TweenInfo.new(0.2), {
+			BackgroundColor3 = Color3.fromRGB(45, 55, 80),
+			TextColor3 = Color3.fromRGB(255, 255, 255)
+		}):Play()
+		TweenService:Create(btnStroke, TweenInfo.new(0.2), {
+			Color = Color3.fromRGB(80, 120, 240)
+		}):Play()
+	end)
+
+	table.insert(optionButtons, {Button = btn, Stroke = btnStroke})
+end
+
+-- 5. 하단 컨트롤 영역 (실행 & 언로드 버튼)
+local buttonFrame = Instance.new("Frame")
+buttonFrame.Name = "ButtonFrame"
+buttonFrame.Size = UDim2.new(1, -30, 0, 45)
+buttonFrame.Position = UDim2.new(0, 15, 1, -60)
+buttonFrame.BackgroundTransparency = 1
+buttonFrame.Parent = mainFrame
+
+-- 실행 버튼 (좌측 70% 영역)
+local executeBtn = Instance.new("TextButton")
+executeBtn.Name = "ExecuteButton"
+executeBtn.Size = UDim2.new(0.7, -5, 1, 0)
+executeBtn.Position = UDim2.new(0, 0, 0, 0)
+executeBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 240)
+executeBtn.Text = "실행"
+executeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+executeBtn.TextSize = 15
+executeBtn.Font = Enum.Font.GothamBold
+executeBtn.AutoButtonColor = false
+executeBtn.Parent = buttonFrame
+
+local execCorner = Instance.new("UICorner")
+execCorner.CornerRadius = UDim.new(0, 8)
+execCorner.Parent = executeBtn
+
+-- 언로드 버튼 (우측 30% 영역)
+local unloadBtn = Instance.new("TextButton")
+unloadBtn.Name = "UnloadButton"
+unloadBtn.Size = UDim2.new(0.3, -5, 1, 0)
+unloadBtn.Position = UDim2.new(0.7, 5, 0, 0)
+unloadBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
+unloadBtn.Text = "언로드"
+unloadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+unloadBtn.TextSize = 15
+unloadBtn.Font = Enum.Font.GothamBold
+unloadBtn.AutoButtonColor = false
+unloadBtn.Parent = buttonFrame
+
+local unloadCorner = Instance.new("UICorner")
+unloadCorner.CornerRadius = UDim.new(0, 8)
+unloadCorner.Parent = unloadBtn
+
+-- 실행 버튼 애니메이션
+executeBtn.MouseEnter:Connect(function()
+	TweenService:Create(executeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(95, 135, 255)}):Play()
+end)
+
+executeBtn.MouseLeave:Connect(function()
+	TweenService:Create(executeBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(80, 120, 240)}):Play()
+end)
+
+-- 실행 버튼 클릭 이벤트
+executeBtn.MouseButton1Click:Connect(function()
+	if selectedUrl then
+		-- 1) 지정된 Place ID가 아닐 경우 추방
+		if game.PlaceId ~= TARGET_PLACE_ID then
+			Player:Kick("This script does not work in this game.")
+			return
+		end
+
+		-- 2) 지정된 Place ID가 맞으면 코드 실행
+		local success, err = pcall(function()
+			loadstring(game:HttpGet(selectedUrl))()
+		end)
+		if not success then
+			warn("스크립트 실행 실패:", err)
+		end
+	else
+		-- 아무 옵션도 선택하지 않은 경우 진동 애니메이션
+		local originalPos = executeBtn.Position
+		TweenService:Create(executeBtn, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, -4, 0, 0)}):Play()
+		task.wait(0.05)
+		TweenService:Create(executeBtn, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, 4, 0, 0)}):Play()
+		task.wait(0.05)
+		TweenService:Create(executeBtn, TweenInfo.new(0.05), {Position = originalPos}):Play()
+	end
+end)
+
+-- 언로드 버튼 애니메이션 및 동작
+unloadBtn.MouseEnter:Connect(function()
+	TweenService:Create(unloadBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(220, 80, 80)}):Play()
+end)
+
+unloadBtn.MouseLeave:Connect(function()
+	TweenService:Create(unloadBtn, TweenInfo.new(0.15), {BackgroundColor3 = Color3.fromRGB(200, 60, 60)}):Play()
+end)
+
+unloadBtn.MouseButton1Click:Connect(function()
+	screenGui:Destroy()
+end)
