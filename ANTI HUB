@@ -1,11 +1,9 @@
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local Player = Players.LocalPlayer
-
-local TARGET_PLACE_ID = 17625359962
 local PlayerGui = Player:WaitForChild("PlayerGui")
 
--- 기존 GUI 제거 (중복 실행 방증)
+-- 기존 GUI 제거 (중복 실행 방지)
 if PlayerGui:FindFirstChild("AntiHubGUI") then
 	PlayerGui.AntiHubGUI:Destroy()
 end
@@ -16,11 +14,11 @@ screenGui.Name = "AntiHubGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = PlayerGui
 
--- 2. 메인 프레임
+-- 2. 메인 프레임 (3개 버튼에 맞춰 높이 365px로 확장)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 420, 0, 310)
-mainFrame.Position = UDim2.new(0.5, -210, 0.5, -155)
+mainFrame.Size = UDim2.new(0, 420, 0, 365)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -182)
 mainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
@@ -52,10 +50,10 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 10)
 titleCorner.Parent = titleLabel
 
--- 4. 버튼 컨테이너
+-- 4. 버튼 컨테이너 (높이 확장)
 local container = Instance.new("Frame")
 container.Name = "Container"
-container.Size = UDim2.new(1, -30, 0, 120)
+container.Size = UDim2.new(1, -30, 0, 175)
 container.Position = UDim2.new(0, 15, 0, 60)
 container.BackgroundTransparency = 1
 container.Parent = mainFrame
@@ -65,19 +63,26 @@ uiListLayout.Parent = container
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 uiListLayout.Padding = UDim.new(0, 10)
 
--- 스크립트 목록 및 URL 정의
+-- 스크립트 목록, URL 및 허용 Place ID 정의
 local scriptsData = {
 	{
 		Name = "anti enhancement  (RIVALS)",
-		Url = "https://raw.githubusercontent.com/koyo141013/anti-enhancement/refs/heads/main/anti%20enhancement"
+		Url = "https://raw.githubusercontent.com/koyo141013/anti-enhancement/refs/heads/main/anti%20enhancement",
+		TargetPlaceId = 17625359962
 	},
 	{
 		Name = "RIVALS HUB  (RIVALS)",
-		Url = "https://raw.githubusercontent.com/koyo141013/RIVALS-HUB/refs/heads/main/RIVALS%20HUB"
+		Url = "https://raw.githubusercontent.com/koyo141013/RIVALS-HUB/refs/heads/main/RIVALS%20HUB",
+		TargetPlaceId = 17625359962
+	},
+	{
+		Name = "steal-egg-stock HUB  (steal-egg-stock)",
+		Url = "https://raw.githubusercontent.com/koyo141013/steal-egg-stock-HUB/refs/heads/main/steal%20egg%20stock%20HUB",
+		TargetPlaceId = 107778070777162
 	}
 }
 
-local selectedUrl = nil
+local selectedData = nil
 local optionButtons = {}
 
 -- 옵션 버튼 생성
@@ -88,7 +93,7 @@ for index, data in ipairs(scriptsData) do
 	btn.BackgroundColor3 = Color3.fromRGB(36, 36, 44)
 	btn.Text = "   " .. data.Name
 	btn.TextColor3 = Color3.fromRGB(180, 180, 190)
-	btn.TextSize = 14
+	btn.TextSize = 13
 	btn.Font = Enum.Font.GothamMedium
 	btn.TextXAlignment = Enum.TextXAlignment.Left
 	btn.AutoButtonColor = false
@@ -104,7 +109,7 @@ for index, data in ipairs(scriptsData) do
 	btnStroke.Parent = btn
 
 	btn.MouseButton1Click:Connect(function()
-		selectedUrl = data.Url
+		selectedData = data
 		for _, otherBtn in ipairs(optionButtons) do
 			TweenService:Create(otherBtn.Button, TweenInfo.new(0.2), {
 				BackgroundColor3 = Color3.fromRGB(36, 36, 44),
@@ -127,7 +132,7 @@ for index, data in ipairs(scriptsData) do
 	table.insert(optionButtons, {Button = btn, Stroke = btnStroke})
 end
 
--- 5. 하단 컨트롤 영역 (실행 & 언로드 버튼)
+-- 5. 하단 컨트롤 영역 (Execute & Unload 버튼)
 local buttonFrame = Instance.new("Frame")
 buttonFrame.Name = "ButtonFrame"
 buttonFrame.Size = UDim2.new(1, -30, 0, 45)
@@ -180,22 +185,22 @@ end)
 
 -- 실행 버튼 클릭 이벤트
 executeBtn.MouseButton1Click:Connect(function()
-	if selectedUrl then
-		-- 1) 지정된 Place ID가 아닐 경우 추방
-		if game.PlaceId ~= TARGET_PLACE_ID then
+	if selectedData then
+		-- 1) 선택된 옵션의 TargetPlaceId와 현재 PlaceId 비교
+		if game.PlaceId ~= selectedData.TargetPlaceId then
 			Player:Kick("This script does not work in this game.")
 			return
 		end
 
-		-- 2) 지정된 Place ID가 맞으면 코드 실행
+		-- 2) Place ID가 일치하면 스크립트 실행
 		local success, err = pcall(function()
-			loadstring(game:HttpGet(selectedUrl))()
+			loadstring(game:HttpGetAsync(selectedData.Url))()
 		end)
 		if not success then
 			warn("Execute failed:", err)
 		end
 	else
-		-- 선택된 옵션이 없을 때 흔들림 애니메이션
+		-- 옵션을 선택하지 않고 눌렀을 때 흔들림 애니메이션
 		local originalPos = executeBtn.Position
 		TweenService:Create(executeBtn, TweenInfo.new(0.05), {Position = originalPos + UDim2.new(0, -4, 0, 0)}):Play()
 		task.wait(0.05)
