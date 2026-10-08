@@ -14,11 +14,11 @@ screenGui.Name = "AntiHubGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = PlayerGui
 
--- 2. 메인 프레임 (5개 버튼에 맞춰 높이 475px로 확장)
+-- 2. 메인 프레임
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 420, 0, 475)
-mainFrame.Position = UDim2.new(0.5, -210, 0.5, -237)
+mainFrame.Size = UDim2.new(0, 420, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -210)
 mainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
@@ -50,18 +50,27 @@ local titleCorner = Instance.new("UICorner")
 titleCorner.CornerRadius = UDim.new(0, 10)
 titleCorner.Parent = titleLabel
 
--- 4. 버튼 컨테이너 (높이 확장)
-local container = Instance.new("Frame")
+-- 4. 버튼 스크롤 컨테이너 (6개 이상 버튼 지원)
+local container = Instance.new("ScrollingFrame")
 container.Name = "Container"
 container.Size = UDim2.new(1, -30, 0, 285)
 container.Position = UDim2.new(0, 15, 0, 60)
 container.BackgroundTransparency = 1
+container.BorderSizePixel = 0
+container.ScrollBarThickness = 4
+container.ScrollBarImageColor3 = Color3.fromRGB(80, 80, 100)
+container.CanvasSize = UDim2.new(0, 0, 0, 0)
 container.Parent = mainFrame
 
 local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.Parent = container
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 uiListLayout.Padding = UDim.new(0, 10)
+
+-- 컨테이너 내부 크기 자동 조절
+uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	container.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 5)
+end)
 
 -- 스크립트 목록, URL 및 허용 Place ID 정의
 local scriptsData = {
@@ -89,6 +98,11 @@ local scriptsData = {
 		Name = "OVERKILL HUB",
 		Url = "https://raw.githubusercontent.com/koyo141013/-OVERKILL-HUB-/refs/heads/main/OVERKILL%20HUB",
 		TargetPlaceId = 124842176624983
+	},
+	{
+		Name = "build pyramid hub",
+		Url = "https://raw.githubusercontent.com/koyo141013/build-pyramid-hub/refs/heads/main/build%20pyramid%20hub",
+		TargetPlaceId = 123720558354386
 	}
 }
 
@@ -99,7 +113,7 @@ local optionButtons = {}
 for index, data in ipairs(scriptsData) do
 	local btn = Instance.new("TextButton")
 	btn.Name = "OptionBtn_" .. index
-	btn.Size = UDim2.new(1, 0, 0, 45)
+	btn.Size = UDim2.new(1, -8, 0, 45)
 	btn.BackgroundColor3 = Color3.fromRGB(36, 36, 44)
 	btn.Text = "   " .. data.Name
 	btn.TextColor3 = Color3.fromRGB(180, 180, 190)
