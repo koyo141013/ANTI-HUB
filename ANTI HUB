@@ -14,11 +14,11 @@ screenGui.Name = "AntiHubGUI"
 screenGui.ResetOnSpawn = false
 screenGui.Parent = PlayerGui
 
--- 2. 메인 프레임 (3개 버튼에 맞춰 높이 365px로 확장)
+-- 2. 메인 프레임 (4개 버튼에 맞춰 높이 420px로 확장)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 420, 0, 365)
-mainFrame.Position = UDim2.new(0.5, -210, 0.5, -182)
+mainFrame.Size = UDim2.new(0, 420, 0, 420)
+mainFrame.Position = UDim2.new(0.5, -210, 0.5, -210)
 mainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
@@ -53,7 +53,7 @@ titleCorner.Parent = titleLabel
 -- 4. 버튼 컨테이너 (높이 확장)
 local container = Instance.new("Frame")
 container.Name = "Container"
-container.Size = UDim2.new(1, -30, 0, 175)
+container.Size = UDim2.new(1, -30, 0, 230)
 container.Position = UDim2.new(0, 15, 0, 60)
 container.BackgroundTransparency = 1
 container.Parent = mainFrame
@@ -79,6 +79,11 @@ local scriptsData = {
 		Name = "steal-egg-stock HUB  (steal-egg-stock)",
 		Url = "https://raw.githubusercontent.com/koyo141013/steal-egg-stock-HUB/refs/heads/main/steal%20egg%20stock%20HUB",
 		TargetPlaceId = 107778070777162
+	},
+	{
+		Name = "CRAZY ODYSSEY HUB",
+		Url = "https://raw.githubusercontent.com/koyo141013/CRAZY-ODYSSEY/refs/heads/main/CRAZY%20ODYSSEY%20HUB",
+		TargetPlaceId = 134931730875913
 	}
 }
 
