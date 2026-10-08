@@ -13,20 +13,29 @@ end
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "AntiHubGUI"
 screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true -- 화면 꽉 차게 계산
 screenGui.Parent = PlayerGui
 
--- 2. 메인 프레임 (모바일 대응: 가로 340px, 세로 340px로 컴팩트하게 조정)
+-- 2. 메인 프레임 (모바일 대응: 화면 비율 기준으로 크기 설정)
 local mainFrame = Instance.new("Frame")
 mainFrame.Name = "MainFrame"
-mainFrame.Size = UDim2.new(0, 340, 0, 340)
-mainFrame.Position = UDim2.new(0.5, -170, 0.5, -170)
+-- 화면 가로의 80%, 세로의 50%를 넘어가지 않도록 상대 크기(Scale) 사용
+mainFrame.Size = UDim2.new(0.8, 0, 0.5, 0)
+mainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
+mainFrame.AnchorPoint = Vector2.new(0.5, 0.5) -- 중앙 정렬
 mainFrame.BackgroundColor3 = Color3.fromRGB(24, 24, 28)
 mainFrame.BorderSizePixel = 0
 mainFrame.ClipsDescendants = true
 mainFrame.Parent = screenGui
 
+-- 모바일에서 창이 너무 커지지 않도록 가로 최대/최소 크기 제한
+local sizeConstraint = Instance.new("UISizeConstraint")
+sizeConstraint.MaxSize = Vector2.new(340, 320) -- 최대 가로 340, 세로 320
+sizeConstraint.MinSize = Vector2.new(260, 250) -- 최소 가로 260, 세로 250
+sizeConstraint.Parent = mainFrame
+
 local mainCorner = Instance.new("UICorner")
-mainCorner.CornerRadius = UDim.new(0, 10)
+mainCorner.CornerRadius = UDim.new(0, 8)
 mainCorner.Parent = mainFrame
 
 local mainStroke = Instance.new("UIStroke")
@@ -34,31 +43,36 @@ mainStroke.Color = Color3.fromRGB(50, 50, 60)
 mainStroke.Thickness = 1
 mainStroke.Parent = mainFrame
 
--- 3. 타이틀 바 (드래그 핸들 역할)
+-- 3. 타이틀 바 (드래그 핸들)
 local titleLabel = Instance.new("TextLabel")
 titleLabel.Name = "Title"
-titleLabel.Size = UDim2.new(1, 0, 0, 38)
+titleLabel.Size = UDim2.new(1, 0, 0, 36)
 titleLabel.Position = UDim2.new(0, 0, 0, 0)
 titleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 36)
 titleLabel.Text = "   ANTI HUB"
 titleLabel.TextColor3 = Color3.fromRGB(240, 240, 245)
-titleLabel.TextSize = 14
+titleLabel.TextSize = 13
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Active = true
 titleLabel.Parent = mainFrame
 
 local titleCorner = Instance.new("UICorner")
-titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.CornerRadius = UDim.new(0, 8)
 titleCorner.Parent = titleLabel
 
--- [드래그 기능 구현 (마우스 / 터치 대응)]
+-- [드래그 기능 (모바일 터치 / 마우스 호환)]
 local dragging = false
 local dragInput, dragStart, startPos
 
 local function update(input)
 	local delta = input.Position - dragStart
-	mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	mainFrame.Position = UDim2.new(
+		startPos.X.Scale,
+		startPos.X.Offset + delta.X,
+		startPos.Y.Scale,
+		startPos.Y.Offset + delta.Y
+	)
 end
 
 titleLabel.InputBegan:Connect(function(input)
@@ -90,8 +104,8 @@ end)
 -- 4. 버튼 스크롤 컨테이너
 local container = Instance.new("ScrollingFrame")
 container.Name = "Container"
-container.Size = UDim2.new(1, -20, 0, 230)
-container.Position = UDim2.new(0, 10, 0, 48)
+container.Size = UDim2.new(1, -16, 1, -88)
+container.Position = UDim2.new(0, 8, 0, 42)
 container.BackgroundTransparency = 1
 container.BorderSizePixel = 0
 container.ScrollBarThickness = 3
@@ -102,14 +116,13 @@ container.Parent = mainFrame
 local uiListLayout = Instance.new("UIListLayout")
 uiListLayout.Parent = container
 uiListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-uiListLayout.Padding = UDim.new(0, 8)
+uiListLayout.Padding = UDim.new(0, 6)
 
--- 컨테이너 스크롤 크기 자동 조절
 uiListLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
 	container.CanvasSize = UDim2.new(0, 0, 0, uiListLayout.AbsoluteContentSize.Y + 5)
 end)
 
--- 스크립트 데이터 정의
+-- 스크립트 목록
 local scriptsData = {
 	{
 		Name = "anti enhancement  (RIVALS)",
@@ -150,11 +163,11 @@ local optionButtons = {}
 for index, data in ipairs(scriptsData) do
 	local btn = Instance.new("TextButton")
 	btn.Name = "OptionBtn_" .. index
-	btn.Size = UDim2.new(1, -6, 0, 38)
+	btn.Size = UDim2.new(1, -6, 0, 36)
 	btn.BackgroundColor3 = Color3.fromRGB(36, 36, 44)
 	btn.Text = "   " .. data.Name
 	btn.TextColor3 = Color3.fromRGB(180, 180, 190)
-	btn.TextSize = 12
+	btn.TextSize = 11
 	btn.Font = Enum.Font.GothamMedium
 	btn.TextXAlignment = Enum.TextXAlignment.Left
 	btn.AutoButtonColor = false
@@ -193,23 +206,22 @@ for index, data in ipairs(scriptsData) do
 	table.insert(optionButtons, {Button = btn, Stroke = btnStroke})
 end
 
--- 5. 하단 컨트롤 영역 (Execute & Unload 버튼)
+-- 5. 하단 버튼 영역 (Execute & Unload)
 local buttonFrame = Instance.new("Frame")
 buttonFrame.Name = "ButtonFrame"
-buttonFrame.Size = UDim2.new(1, -20, 0, 38)
-buttonFrame.Position = UDim2.new(0, 10, 1, -48)
+buttonFrame.Size = UDim2.new(1, -16, 0, 34)
+buttonFrame.Position = UDim2.new(0, 8, 1, -40)
 buttonFrame.BackgroundTransparency = 1
 buttonFrame.Parent = mainFrame
 
--- 실행 버튼 (Execute)
 local executeBtn = Instance.new("TextButton")
 executeBtn.Name = "ExecuteButton"
-executeBtn.Size = UDim2.new(0.7, -4, 1, 0)
+executeBtn.Size = UDim2.new(0.7, -3, 1, 0)
 executeBtn.Position = UDim2.new(0, 0, 0, 0)
 executeBtn.BackgroundColor3 = Color3.fromRGB(80, 120, 240)
 executeBtn.Text = "Execute"
 executeBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-executeBtn.TextSize = 13
+executeBtn.TextSize = 12
 executeBtn.Font = Enum.Font.GothamBold
 executeBtn.AutoButtonColor = false
 executeBtn.Parent = buttonFrame
@@ -218,15 +230,14 @@ local execCorner = Instance.new("UICorner")
 execCorner.CornerRadius = UDim.new(0, 6)
 execCorner.Parent = executeBtn
 
--- 언로드 버튼 (Unload)
 local unloadBtn = Instance.new("TextButton")
 unloadBtn.Name = "UnloadButton"
-unloadBtn.Size = UDim2.new(0.3, -4, 1, 0)
-unloadBtn.Position = UDim2.new(0.7, 4, 0, 0)
+unloadBtn.Size = UDim2.new(0.3, -3, 1, 0)
+unloadBtn.Position = UDim2.new(0.7, 3, 0, 0)
 unloadBtn.BackgroundColor3 = Color3.fromRGB(200, 60, 60)
 unloadBtn.Text = "Unload"
 unloadBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-unloadBtn.TextSize = 13
+unloadBtn.TextSize = 12
 unloadBtn.Font = Enum.Font.GothamBold
 unloadBtn.AutoButtonColor = false
 unloadBtn.Parent = buttonFrame
@@ -235,7 +246,7 @@ local unloadCorner = Instance.new("UICorner")
 unloadCorner.CornerRadius = UDim.new(0, 6)
 unloadCorner.Parent = unloadBtn
 
--- 실행 버튼 이벤트
+-- 이벤트 연결
 executeBtn.MouseButton1Click:Connect(function()
 	if selectedData then
 		if game.PlaceId ~= selectedData.TargetPlaceId then
@@ -259,7 +270,6 @@ executeBtn.MouseButton1Click:Connect(function()
 	end
 end)
 
--- 언로드 버튼 이벤트
 unloadBtn.MouseButton1Click:Connect(function()
 	screenGui:Destroy()
 end)
